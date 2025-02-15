@@ -1,0 +1,17 @@
+{
+	"name": "DisguisingDb_dev",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "kv_dev_tsgentchant",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "DisguisingDb-dev-conn-string"
+			}
+		}
+	}
+}
