@@ -1,0 +1,35 @@
+{
+	"name": "Weekly",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "copy-employee-DisguisingDb",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Week",
+				"interval": 1,
+				"startTime": "2025-02-17T10:20:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						20
+					],
+					"hours": [
+						10
+					],
+					"weekDays": [
+						"Monday"
+					]
+				}
+			}
+		}
+	}
+}
