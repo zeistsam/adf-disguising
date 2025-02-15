@@ -1,0 +1,9 @@
+{
+	"name": "TsgEntchant-Dev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a8bed1dc-3cea-4639-a564-c11961b1c67a",
+		"tenantId": "e0793d39-0939-496d-b129-198edd916feb"
+	}
+}
