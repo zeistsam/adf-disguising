@@ -1,0 +1,10 @@
+{
+	"name": "kv_dev_tsgentchant",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-dev-tsgentchant.vault.azure.net/"
+		}
+	}
+}
