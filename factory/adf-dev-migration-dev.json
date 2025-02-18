@@ -1,0 +1,9 @@
+{
+	"name": "adf-dev-migration-dev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ea88b024-05be-472a-8e6b-100865c9492d",
+		"tenantId": "d0d24666-40d5-4174-8bd4-300e2c9eb031"
+	}
+}
