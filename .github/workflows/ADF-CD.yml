@@ -1,40 +1,86 @@
-# This is a basic workflow to help you deploy an ADF ARM template to a higher environment
-
-# For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
-# For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
+name: ADF Deployment
 
 on:
   push:
     branches:
       - adf_publish
   workflow_dispatch:
-
+    inputs:
+      skipAzModuleInstallation:
+        description: 'Skip Az module installation'
+        required: false
+        default: 'false'
 
 jobs:
+  # Build Check (Validates ARM Template)
   build:
     runs-on: ubuntu-latest
-    name: 'This deploys to Production'
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Azure Login
-      uses: Azure/login@v1.4.3
-      with:
-        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-        creds: ${{secrets.AZURE_CREDENTIALS}}
-        
-    - name: Deploy Azure Resource Manager (ARM) Template
-      uses: Azure/arm-deploy@v1.0.6
-      with:
-        # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
-        scope: 'resourcegroup'
-        # Target resource group of the deployment.
-        resourceGroupName: '<Resource Group Name>'
-        # Specify the path to the ADF ARM template. In this scenario, the workflow is in the same branch, 
-        # hence we only add the folder and arm template name to the path
-        template: ./testrepo/ARMTemplateForFactory.json
-        # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
-        deploymentMode: Incremental
-        # Supply deployment parameter values. In this simple scenario, 
-        # I am only passing the name of the target ADF to which this is being deployed
-        parameters: factoryName=<ADFName>
+      - name: Install Az PowerShell module
+        run: if('${{ inputs.skipAzModuleInstallation }}' -ne 'true') { Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force }
+        shell: pwsh
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      - name: Validate ARM Template
+        run: |
+          az deployment group validate \
+            --resource-group ${{ vars.AZURE_RG_DEV }} \
+            --template-file ${{ vars.ARM_TEMPLATE_FILE }} \
+            --parameters ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
+  
+  # Deploy Job (Runs after Build Check)
+  deploy:
+    needs: build  # Ensures build check passes before deployment
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        stage: ['Dev', 'UAT', 'Prod']
+      fail-fast: true
+      max-parallel: 1
+
+    environment:
+      name: ${{ matrix.stage }}
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Az PowerShell module
+        run: if('${{ inputs.skipAzModuleInstallation }}' -ne 'true') { Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force }
+        shell: pwsh
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      # Disable Triggers before deployment
+      - name: Run Pre-deployment script
+        shell: pwsh
+        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ vars.ARM_TEMPLATE_FILE }}  -ResourceGroupName ${{ vars['AZURE_RG_' + matrix.stage] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $true -deleteDeployment $false"
+
+      # Deploy ADF ARM Templates
+      - name: Deploy ADF ARM Templates ${{ matrix.stage }}
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: 'resourcegroup'
+          resourceGroupName: ${{ vars['AZURE_RG_' + matrix.stage] }}
+          template: ${{ vars.ARM_TEMPLATE_FILE }}
+          parameters: |
+            ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
+            factoryName=${{ vars.ADF_FACTORYNAME }} 
+            ADLS_properties_typeProperties_url=${{ vars.ADF_ADLS_PROPERTIES_TYPEPROPERTIES_URL }} 
+            AzureBlob_properties_typeProperties_serviceEndpoint=${{ vars.ADF_AZUREBLOB_PROPERTIES_TYPEPROPERTIES_SERVICEENDPOINT }}
+            AzureKeyVault_properties_typeProperties_baseUrl=${{ vars.ADF_AZUREKEYVAULT_PROPERTIES_TYPEPROPERTIES_BASEURL }}
+
+      # Enable Triggers after deployment
+      - name: Run Post-deployment script
+        shell: pwsh
+        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ vars.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars['AZURE_RG_' + matrix.stage] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
