@@ -27,6 +27,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
+      
+   
 
       - name: Validate ARM Template
         run: |
@@ -34,8 +36,7 @@ jobs:
             --resource-group ${{ vars.AZURE_RG_DEV }} \
             --template-file ${{ vars.ARM_TEMPLATE_FILE }} \
             --parameters ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
-  
-
+    
  
   deploy:
     needs: build
