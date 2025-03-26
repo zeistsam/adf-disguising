@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stage: ['Dev', 'UAT', 'Prod']
+        stage: ['DEV', 'UAT', 'PROD']
       fail-fast: true
       max-parallel: 1
     environment:
@@ -70,7 +70,7 @@ jobs:
       - name: Deploy ADF ARM Templates ${{ matrix.stage }}
         uses: Azure/arm-deploy@v1
         with:
-          scope: ResourceGroup
+          scope: resourcegroup # subscription or resourcegroup
           resourceGroupName: ${{ env.AZURE_RG }}
           template: ${{secrets.ARM_TEMPLATE_FILE }}
           parameters: |
