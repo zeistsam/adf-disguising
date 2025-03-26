@@ -27,16 +27,15 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
-      
-   
 
       - name: Validate ARM Template
         run: |
           az deployment group validate \
             --resource-group ${{ vars.AZURE_RG_DEV }} \
-            --template-file ${{ vars.ARM_TEMPLATE_FILE }} \
-            --parameters ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
-    
+            --template-file ${{ secrets.ARM_TEMPLATE_FILE }} \
+            --parameters ${{ secrets.ARM_TEMPLATE_PARAMETERS_FILE }}
+  
+
  
   deploy:
     needs: build
@@ -55,6 +54,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set AZURE_RG environment variable
+        run: echo "AZURE_RG=${{ vars[format('AZURE_RG_{0}', matrix.stage)] }}" >> $GITHUB_ENV
+
+      - name: Debug AZURE_RG
+        run: "echo 'Resolved AZURE_RG: $AZURE_RG'"
+
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
@@ -64,11 +70,12 @@ jobs:
       - name: Deploy ADF ARM Templates ${{ matrix.stage }}
         uses: Azure/arm-deploy@v1
         with:
+          scope: ResourceGroup
           resourceGroupName: ${{ env.AZURE_RG }}
-          template: ${{ vars.ARM_TEMPLATE_FILE }}
+          template: ${{secrets.ARM_TEMPLATE_FILE }}
           parameters: |
-            ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
-            factoryName=${{ vars.ADF_FACTORYNAME }} 
+            ${{ secrets.ARM_TEMPLATE_PARAMETERS_FILE }}
+            factoryName=${{ vars.ADF_FACTORYNAME}} 
             ADLS_properties_typeProperties_url=${{ vars.ADF_ADLS_PROPERTIES_TYPEPROPERTIES_URL }} 
             AzureBlob_properties_typeProperties_serviceEndpoint=${{ vars.ADF_AZUREBLOB_PROPERTIES_TYPEPROPERTIES_SERVICEENDPOINT }}
             AzureKeyVault_properties_typeProperties_baseUrl=${{ vars.ADF_AZUREKEYVAULT_PROPERTIES_TYPEPROPERTIES_BASEURL }}
@@ -78,5 +85,5 @@ jobs:
       # Enable Triggers after deployment
       - name: Run Post-deployment script
         shell: pwsh
-        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ vars.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars[format('AZURE_RG_{0}', matrix.stage)] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
+        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ secrets.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars[format('AZURE_RG_{0}', matrix.stage)] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
 
