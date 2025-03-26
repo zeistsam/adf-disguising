@@ -72,9 +72,9 @@ jobs:
         with:
           scope: resourcegroup # subscription or resourcegroup
           resourceGroupName: ${{ env.AZURE_RG }}
-          template: ${{secrets.ARM_TEMPLATE_FILE }}
+          template: ${{vars.ARM_TEMPLATE_FILE }}
           parameters: |
-            ${{ secrets.ARM_TEMPLATE_PARAMETERS_FILE }}
+            ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
             factoryName=${{ vars.ADF_FACTORYNAME}} 
             ADLS_properties_typeProperties_url=${{ vars.ADF_ADLS_PROPERTIES_TYPEPROPERTIES_URL }} 
             AzureBlob_properties_typeProperties_serviceEndpoint=${{ vars.ADF_AZUREBLOB_PROPERTIES_TYPEPROPERTIES_SERVICEENDPOINT }}
