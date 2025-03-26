@@ -32,8 +32,8 @@ jobs:
         run: |
           az deployment group validate \
             --resource-group ${{ vars.AZURE_RG_DEV }} \
-            --template-file ${{ secrets.ARM_TEMPLATE_FILE }} \
-            --parameters ${{ secrets.ARM_TEMPLATE_PARAMETERS_FILE }}
+            --template-file ${{ vars.ARM_TEMPLATE_FILE }} \
+            --parameters ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
   
 
  
