@@ -66,20 +66,15 @@ jobs:
         with:
           creds: ${{ secrets[format('AZURE_CREDENTIALS_{0}', matrix.stage)] }}
           enable-AzPSSession: true
-
+      
       - name: Deploy ADF ARM Templates ${{ matrix.stage }}
-        uses: Azure/arm-deploy@v1
+        uses: Azure/data-factory-deploy-action@v1.2.0
         with:
-          scope: resourcegroup # subscription or resourcegroup
-          resourceGroupName: ${{ env.AZURE_RG }}
-          template: ${{vars.ARM_TEMPLATE_FILE }}
-          parameters: |
-            ${{ vars.ARM_TEMPLATE_PARAMETERS_FILE }}
-            factoryName=${{ vars.ADF_FACTORYNAME}} 
-            ADLS_properties_typeProperties_url=${{ vars.ADF_ADLS_PROPERTIES_TYPEPROPERTIES_URL }} 
-            AzureBlob_properties_typeProperties_serviceEndpoint=${{ vars.ADF_AZUREBLOB_PROPERTIES_TYPEPROPERTIES_SERVICEENDPOINT }}
-            AzureKeyVault_properties_typeProperties_baseUrl=${{ vars.ADF_AZUREKEYVAULT_PROPERTIES_TYPEPROPERTIES_BASEURL }}
-          
+          resourceGroupName: ${{ env.AZURE_RG }} # (6) your target ADF resource group name
+          dataFactoryName: ${{ vars.ADF_FACTORYNAME}} # (7) your target ADF name
+          armTemplateFile:  ARMTemplateForFactory.json # (8) ARM template file name ARMTemplateForFactory.json
+          armTemplateParametersFile: ARMTemplateParametersForFactory.json # (9) ARM template parameters file name ARMTemplateParametersForFactory.json
+            
   # Deploy Job (Runs after Build Check)
 
       # Enable Triggers after deployment
