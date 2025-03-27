@@ -80,5 +80,5 @@ jobs:
       # Enable Triggers after deployment
       - name: Run Post-deployment script
         shell: pwsh
-        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ secrets.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars[format('AZURE_RG_{0}', matrix.stage)] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
+        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ARMTemplateForFactory.json -ResourceGroupName ${{ vars[format('AZURE_RG_{0}', matrix.stage)] }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
 
