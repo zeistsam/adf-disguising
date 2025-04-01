@@ -79,4 +79,4 @@ jobs:
  #Enable Triggers
       - name: Run Post-deployment script
         shell: pwsh
-        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ vars.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars.AZURE_RG }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
+        run: pwsh -command "./.github/workflows/PrePostDeploymentScript.ps1 -armTemplate ./adf-dev-migration-dev/ARMTemplateForFactory.json -ResourceGroupName rg-dev-migration -DataFactoryName adf-dev-migration-dev -predeployment $false -deleteDeployment $true"
