@@ -72,8 +72,8 @@ jobs:
         with:
           resourceGroupName: ${{ env.AZURE_RG }} # (6) your target ADF resource group name
           dataFactoryName: ${{ vars.ADF_FACTORYNAME}} # (7) your target ADF name
-          armTemplateFile:  ${{ github.workspace }}/ARMTemplateForFactory.json # (8) ARM template file name ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/ARMTemplateParametersForFactory.json # (9) ARM template parameters file name ARMTemplateParametersForFactory.json
+          armTemplateFile:  ${{ github.workspace }}/adf-dev-migration-dev/ARMTemplateForFactory.json # (8) ARM template file name ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/adf-dev-migration-dev/ARMTemplateParametersForFactory.json # (9) ARM template parameters file name ARMTemplateParametersForFactory.json
 
   # Deploy Job (Runs after Build Check)
  #Enable Triggers
