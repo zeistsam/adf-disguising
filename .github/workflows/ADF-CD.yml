@@ -72,7 +72,11 @@ jobs:
         with:
           resourceGroupName: ${{ env.AZURE_RG }} # (6) your target ADF resource group name
           dataFactoryName: ${{ vars.ADF_FACTORYNAME}} # (7) your target ADF name
-          armTemplateFile:  ARMTemplateForFactory.json # (8) ARM template file name ARMTemplateForFactory.json
-          armTemplateParametersFile: ARMTemplateParametersForFactory.json # (9) ARM template parameters file name ARMTemplateParametersForFactory.json
-            
+          armTemplateFile:  ${{ github.workspace }}/ARMTemplateForFactory.json # (8) ARM template file name ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/ARMTemplateParametersForFactory.json # (9) ARM template parameters file name ARMTemplateParametersForFactory.json
+
   # Deploy Job (Runs after Build Check)
+ #Enable Triggers
+      - name: Run Post-deployment script
+        shell: pwsh
+        run: pwsh -command "./PrePostDeploymentScript.ps1 -armTemplate ${{ vars.ARM_TEMPLATE_FILE }} -ResourceGroupName ${{ vars.AZURE_RG }} -DataFactoryName ${{ vars.ADF_FACTORYNAME }} -predeployment $false -deleteDeployment $true"
