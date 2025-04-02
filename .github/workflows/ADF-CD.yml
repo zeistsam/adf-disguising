@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       skipAzModuleInstallation:
-        description: 'Skip Az module installation'
+        description: 'Skip Az module installations'
         required: false
         default: 'false'
 
