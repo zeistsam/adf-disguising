@@ -3,7 +3,7 @@ name: ADF Deployment
 on:
   push:
     branches:
-      - adf_publish
+      - adf_publish_copy_pr
   workflow_dispatch:
     inputs:
       skipAzModuleInstallation:
