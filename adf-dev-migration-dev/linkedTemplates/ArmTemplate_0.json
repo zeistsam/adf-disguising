@@ -38,6 +38,37 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Weekly')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Week",
+						"interval": 1,
+						"startTime": "2025-02-18T07:34:00",
+						"timeZone": "India Standard Time",
+						"schedule": {
+							"minutes": [
+								30
+							],
+							"hours": [
+								13
+							],
+							"weekDays": [
+								"Monday"
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -195,218 +226,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_ProfileDb')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adf-emp-copy')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data emp to adf database",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT * FROM [dbo].[Employee]",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "upsert",
-								"upsertSettings": {
-									"useTempDB": true,
-									"keys": [
-										"Ecode"
-									]
-								},
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "Ecode",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "Ecode",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": "IsDeleted",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "IsDeleted",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									},
-									{
-										"source": {
-											"name": "CreatedDate",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "CreatedDate",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "ModifiedDate",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "ModifiedDate",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "CreatedBy",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "CreatedBy",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": "ModifiedBy",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "ModifiedBy",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "AzureSqlTable_Profile_Employee",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureSqlTable_ADF_Employee",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Profile_Employee')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_ADF_Employee')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Weekly')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "adf-emp-copy",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Week",
-						"interval": 1,
-						"startTime": "2025-02-18T07:34:00",
-						"timeZone": "India Standard Time",
-						"schedule": {
-							"minutes": [
-								30
-							],
-							"hours": [
-								13
-							],
-							"weekDays": [
-								"Monday"
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/adf-emp-copy')]"
 			]
 		}
 	]
